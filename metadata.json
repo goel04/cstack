@@ -1,5 +1,5 @@
 {
-  "name": "Greenadel",
+  "name": "CSTACK",
   "description": "Modern climate-tech SaaS platform for carbon footprint calculation and offset requirement estimation.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]

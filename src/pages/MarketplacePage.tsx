@@ -54,7 +54,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({ onNavigate, su
 
       {/* Compliance Notice */}
       <div className="p-4 rounded-xl bg-slate-100 border border-slate-200/80 text-xs text-slate-600 leading-relaxed">
-        <strong className="text-slate-800 font-semibold">Regulatory Notice:</strong> Greenadel operates on the principle that emissions should be avoided and reduced first. Compensation credits featured in our upcoming marketplace are independently audited by standards such as Puro.earth, Gold Standard, and Verra VCS. Calculating your footprint does not grant or certify carbon credits.
+        <strong className="text-slate-800 font-semibold">Regulatory Notice:</strong> CSTACK operates on the principle that emissions should be avoided and reduced first. Compensation credits featured in our upcoming marketplace are independently audited by standards such as Puro.earth, Gold Standard, and Verra VCS. Calculating your footprint does not grant or certify carbon credits.
       </div>
 
       {/* Preview of Project Types */}

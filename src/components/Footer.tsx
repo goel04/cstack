@@ -15,10 +15,10 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           <div className="md:col-span-1 space-y-4">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center text-white font-display font-bold text-lg">
-                G
+                C
               </div>
               <span className="font-display font-bold text-xl text-white tracking-tight flex items-center gap-1.5">
-                Greenadel
+                CSTACK
                 <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400" />
               </span>
             </div>
@@ -111,7 +111,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             <ul className="space-y-2.5 text-sm text-slate-400">
               <li>
                 <button onClick={() => onNavigate('about')} className="hover:text-white transition-colors">
-                  About Greenadel
+                  About CSTACK
                 </button>
               </li>
               <li>
@@ -133,13 +133,13 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             Methodological Notice & Offset Principle:
           </p>
           <p>
-            Calculations provided by the Greenadel Carbon Calculator represent estimated greenhouse gas emissions expressed in tonnes of carbon dioxide equivalent (tCO₂e) using recognized regional and international emission factor datasets. Offset requirements are indicative of the volume required to achieve carbon neutrality and <strong className="text-slate-200 font-medium">do not constitute the issuance, generation, verification, or certification of carbon credits</strong>.
+            Calculations provided by the CSTACK Carbon Calculator represent estimated greenhouse gas emissions expressed in tonnes of carbon dioxide equivalent (tCO₂e) using recognized regional and international emission factor datasets. Offset requirements are indicative of the volume required to achieve carbon neutrality and <strong className="text-slate-200 font-medium">do not constitute the issuance, generation, verification, or certification of carbon credits</strong>.
           </p>
         </div>
 
         {/* Bottom copyright */}
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-4">
-          <p>© {new Date().getFullYear()} Greenadel Technologies Inc. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} CSTACK Technologies Inc. All rights reserved.</p>
           <div className="flex items-center gap-6">
             <span>Terms of Service</span>
             <span>Privacy Policy</span>

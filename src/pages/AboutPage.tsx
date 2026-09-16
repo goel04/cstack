@@ -12,13 +12,13 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
       {/* Intro */}
       <div className="space-y-4 max-w-3xl">
         <span className="text-xs uppercase font-bold tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full">
-          About Greenadel
+          About CSTACK
         </span>
         <h1 className="text-4xl sm:text-5xl font-display font-bold text-slate-950 tracking-tight">
           Climate intelligence built on verifiable scientific rigor.
         </h1>
         <p className="text-lg text-slate-600 leading-relaxed pt-2">
-          Greenadel was founded to replace superficial carbon claims with transparent, auditable carbon accounting infrastructure. We empower individuals and enterprises to accurately measure their carbon footprint and understand verified compensation pathways.
+          CSTACK was founded to replace superficial carbon claims with transparent, auditable carbon accounting infrastructure. We empower individuals and enterprises to accurately measure their carbon footprint and understand verified compensation pathways.
         </p>
       </div>
 
@@ -67,7 +67,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
           Standards & Scientific Reference Frameworks
         </h2>
         <p className="text-sm text-slate-600 leading-relaxed">
-          The Greenadel calculation model is calibrated to international GHG accounting guidelines, incorporating peer-reviewed databases:
+          The CSTACK calculation model is calibrated to international GHG accounting guidelines, incorporating peer-reviewed databases:
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">

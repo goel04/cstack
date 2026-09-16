@@ -30,7 +30,7 @@ export default function App() {
       {userEmail && (
         <div className="bg-slate-900 text-slate-300 text-xs py-1.5 px-4 text-center border-b border-slate-800 flex items-center justify-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-          <span>Logged in as <strong>{userEmail}</strong> (Greenadel Enterprise Workspace)</span>
+          <span>Logged in as <strong>{userEmail}</strong> (CSTACK Enterprise Workspace)</span>
           <button
             onClick={() => setUserEmail(null)}
             className="text-slate-400 hover:text-white underline ml-2 text-[11px]"

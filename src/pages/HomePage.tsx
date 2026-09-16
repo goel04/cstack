@@ -21,7 +21,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               {/* Trust Badge */}
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-xs font-semibold tracking-wide">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span>Greenadel Climate Intelligence V1.0</span>
+                <span>CSTACK Climate Intelligence V1.0</span>
               </div>
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-bold tracking-tight text-slate-950 leading-[1.1]">
@@ -561,7 +561,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-gradient-to-br from-slate-100 to-emerald-50/50 rounded-3xl p-8 sm:p-12 border border-slate-200 text-center space-y-6">
           <div className="w-12 h-12 rounded-2xl bg-slate-900 text-white font-display font-bold text-2xl flex items-center justify-center mx-auto shadow-sm">
-            G
+            C
           </div>
           <div className="max-w-2xl mx-auto space-y-2">
             <h2 className="text-3xl sm:text-4xl font-display font-bold text-slate-950">

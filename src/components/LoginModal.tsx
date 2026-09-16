@@ -32,7 +32,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSucce
   };
 
   const handleQuickDemo = () => {
-    setEmail('sustainability@greenadel.demo');
+    setEmail('sustainability@cstack.demo');
     setPassword('demo-climate-2026');
   };
 
@@ -52,10 +52,10 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSucce
 
         <div className="text-center mb-6">
           <div className="w-10 h-10 rounded-xl bg-slate-900 text-white font-display font-bold text-xl flex items-center justify-center mx-auto mb-3 shadow-xs">
-            G
+            C
           </div>
           <h3 className="text-xl font-display font-bold text-slate-950">
-            Log in to Greenadel
+            Log in to CSTACK
           </h3>
           <p className="text-sm text-slate-500 mt-1">
             Access your organization's carbon footprint models and datasets.
@@ -68,7 +68,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSucce
               <CheckCircle2 className="w-7 h-7" />
             </div>
             <p className="text-base font-semibold text-slate-900">
-              Welcome to Greenadel Workspace
+              Welcome to CSTACK Workspace
             </p>
             <p className="text-xs text-slate-500">
               Authenticated session established.

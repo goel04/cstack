@@ -1072,7 +1072,7 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({ onNavigate, onSe
 
             {/* Critical compliance callout */}
             <div className="p-3.5 rounded-xl bg-emerald-950/60 border border-emerald-800 text-xs text-emerald-300/90 leading-relaxed">
-              <strong className="text-white">Notice:</strong> The Greenadel Carbon Calculator quantifies emission impact and required compensation volume. It does not create, generate, certify, verify, or award carbon credits.
+              <strong className="text-white">Notice:</strong> The CSTACK Carbon Calculator quantifies emission impact and required compensation volume. It does not create, generate, certify, verify, or award carbon credits.
             </div>
 
             {/* CTA: Explore Carbon Credits → */}
