@@ -53,6 +53,23 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 </button>
               </div>
 
+              {/* Product Hunt Featured Badge */}
+              <div className="pt-2">
+                <a
+                  href="https://www.producthunt.com/products/cstack?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-cstack"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block transition-transform hover:scale-[1.02] active:scale-[0.99]"
+                >
+                  <img
+                    alt="CSTACK - The Smarter Way to Manage Carbon. | Product Hunt"
+                    width={250}
+                    height={54}
+                    src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1253769&theme=light&t=1789667416970"
+                  />
+                </a>
+              </div>
+
               {/* Mini trust points */}
               <div className="pt-4 flex flex-wrap items-center gap-6 text-xs text-slate-500">
                 <div className="flex items-center gap-1.5">
