@@ -1,6 +1,7 @@
 import React from 'react';
 import { ShieldCheck, Target, Award, Layers, CheckCircle2, ArrowRight } from 'lucide-react';
 import { ActivePage } from '../types/carbon';
+import { FAQSection } from '../components/FAQSection';
 
 interface AboutPageProps {
   onNavigate: (page: ActivePage) => void;
@@ -56,7 +57,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
             3. High-Durability Offsets
           </h3>
           <p className="text-sm text-slate-600 leading-relaxed">
-            When compensation is required, our upcoming Marketplace focuses on measurable, long-duration carbon removal (Biochar, DAC, Enhanced Weathering).
+            When compensation is required, our Carbon Marketplace focuses on measurable, long-duration carbon removal (Biochar, DAC, Enhanced Weathering).
           </p>
         </div>
       </div>
@@ -112,6 +113,9 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
           </div>
         </div>
       </div>
+
+      {/* Frequently Asked Questions Section */}
+      <FAQSection />
 
       {/* CTA Box */}
       <div className="bg-slate-900 rounded-2xl p-8 text-white flex flex-col sm:flex-row items-center justify-between gap-6">

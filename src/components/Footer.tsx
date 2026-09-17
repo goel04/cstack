@@ -43,36 +43,30 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   className="hover:text-white transition-colors flex items-center gap-1.5 group text-left text-slate-300"
                 >
                   <span>Carbon Calculator</span>
-                  <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800/60 px-1.5 py-0.5 rounded font-mono">
-                    MVP
-                  </span>
                 </button>
               </li>
               <li>
                 <button
                   onClick={() => onNavigate('accounting')}
-                  className="hover:text-white transition-colors flex items-center gap-1.5 text-slate-400"
+                  className="hover:text-white transition-colors flex items-center gap-1.5 text-slate-300"
                 >
                   <span>Carbon Accounting</span>
-                  <span className="text-[10px] text-slate-500">Soon</span>
                 </button>
               </li>
               <li>
                 <button
                   onClick={() => onNavigate('marketplace')}
-                  className="hover:text-white transition-colors flex items-center gap-1.5 text-slate-400"
+                  className="hover:text-white transition-colors flex items-center gap-1.5 text-slate-300"
                 >
                   <span>Carbon Marketplace</span>
-                  <span className="text-[10px] text-slate-500">Soon</span>
                 </button>
               </li>
               <li>
                 <button
                   onClick={() => onNavigate('reporting')}
-                  className="hover:text-white transition-colors flex items-center gap-1.5 text-slate-400"
+                  className="hover:text-white transition-colors flex items-center gap-1.5 text-slate-300"
                 >
                   <span>Carbon Reporting</span>
-                  <span className="text-[10px] text-slate-500">Soon</span>
                 </button>
               </li>
             </ul>

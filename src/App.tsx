@@ -6,7 +6,8 @@ import { HomePage } from './pages/HomePage';
 import { CalculatorPage } from './pages/CalculatorPage';
 import { AboutPage } from './pages/AboutPage';
 import { MarketplacePage } from './pages/MarketplacePage';
-import { RoadmapPage } from './pages/RoadmapPages';
+import { AccountingPage } from './pages/AccountingPage';
+import { ReportingPage } from './pages/ReportingPage';
 import { ActivePage } from './types/carbon';
 
 export default function App() {
@@ -64,10 +65,10 @@ export default function App() {
           />
         )}
         {currentPage === 'accounting' && (
-          <RoadmapPage pageType="accounting" onNavigate={handleNavigate} />
+          <AccountingPage onNavigate={handleNavigate} />
         )}
         {currentPage === 'reporting' && (
-          <RoadmapPage pageType="reporting" onNavigate={handleNavigate} />
+          <ReportingPage onNavigate={handleNavigate} />
         )}
       </main>
 

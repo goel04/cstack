@@ -137,67 +137,64 @@ export const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate, onOpenL
                   </div>
                 </button>
 
-                {/* 2. Carbon Accounting (Coming Soon) */}
+                {/* 2. Carbon Accounting */}
                 <button
                   id="product-item-accounting"
                   onClick={() => handleProductSelect('accounting')}
-                  className="w-full text-left p-2.5 rounded-lg hover:bg-slate-50/70 transition-colors flex items-start gap-3 group border border-transparent"
+                  className="w-full text-left p-2.5 rounded-lg hover:bg-slate-50 transition-colors flex items-start gap-3 group border border-transparent hover:border-slate-200/60"
                 >
-                  <div className="w-8 h-8 rounded-md bg-slate-100 text-slate-500 flex items-center justify-center shrink-0 mt-0.5">
-                    <span className="text-base">🔜</span>
+                  <div className="w-8 h-8 rounded-md bg-amber-50 text-amber-700 flex items-center justify-center shrink-0 mt-0.5 border border-amber-100 group-hover:bg-amber-100 transition-colors">
+                    <span className="text-base">📊</span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-slate-700">Carbon Accounting</span>
-                      <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-slate-100 text-slate-500">
-                        Coming Soon
+                      <span className="text-sm font-semibold text-slate-900 group-hover:text-amber-800 transition-colors">
+                        Carbon Accounting
                       </span>
                     </div>
-                    <p className="text-xs text-slate-400 mt-0.5 leading-snug">
+                    <p className="text-xs text-slate-500 mt-0.5 leading-snug">
                       Track your organization's Scope 1, 2, and 3 emissions.
                     </p>
                   </div>
                 </button>
 
-                {/* 3. Carbon Marketplace (Coming Soon) */}
+                {/* 3. Carbon Marketplace */}
                 <button
                   id="product-item-marketplace"
                   onClick={() => handleProductSelect('marketplace')}
-                  className="w-full text-left p-2.5 rounded-lg hover:bg-slate-50/70 transition-colors flex items-start gap-3 group border border-transparent"
+                  className="w-full text-left p-2.5 rounded-lg hover:bg-slate-50 transition-colors flex items-start gap-3 group border border-transparent hover:border-slate-200/60"
                 >
-                  <div className="w-8 h-8 rounded-md bg-slate-100 text-slate-500 flex items-center justify-center shrink-0 mt-0.5">
-                    <span className="text-base">🔜</span>
+                  <div className="w-8 h-8 rounded-md bg-sky-50 text-sky-700 flex items-center justify-center shrink-0 mt-0.5 border border-sky-100 group-hover:bg-sky-100 transition-colors">
+                    <span className="text-base">🌐</span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-slate-700">Carbon Marketplace</span>
-                      <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-slate-100 text-slate-500">
-                        Coming Soon
+                      <span className="text-sm font-semibold text-slate-900 group-hover:text-sky-800 transition-colors">
+                        Carbon Marketplace
                       </span>
                     </div>
-                    <p className="text-xs text-slate-400 mt-0.5 leading-snug">
+                    <p className="text-xs text-slate-500 mt-0.5 leading-snug">
                       Explore and manage verified carbon credit offsets.
                     </p>
                   </div>
                 </button>
 
-                {/* 4. Carbon Reporting (Coming Soon) */}
+                {/* 4. Carbon Reporting */}
                 <button
                   id="product-item-reporting"
                   onClick={() => handleProductSelect('reporting')}
-                  className="w-full text-left p-2.5 rounded-lg hover:bg-slate-50/70 transition-colors flex items-start gap-3 group border border-transparent"
+                  className="w-full text-left p-2.5 rounded-lg hover:bg-slate-50 transition-colors flex items-start gap-3 group border border-transparent hover:border-slate-200/60"
                 >
-                  <div className="w-8 h-8 rounded-md bg-slate-100 text-slate-500 flex items-center justify-center shrink-0 mt-0.5">
-                    <span className="text-base">🔜</span>
+                  <div className="w-8 h-8 rounded-md bg-teal-50 text-teal-700 flex items-center justify-center shrink-0 mt-0.5 border border-teal-100 group-hover:bg-teal-100 transition-colors">
+                    <span className="text-base">📋</span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-slate-700">Carbon Reporting</span>
-                      <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-slate-100 text-slate-500">
-                        Coming Soon
+                      <span className="text-sm font-semibold text-slate-900 group-hover:text-teal-800 transition-colors">
+                        Carbon Reporting
                       </span>
                     </div>
-                    <p className="text-xs text-slate-400 mt-0.5 leading-snug">
+                    <p className="text-xs text-slate-500 mt-0.5 leading-snug">
                       Generate auditable carbon disclosures and filings.
                     </p>
                   </div>
@@ -295,37 +292,37 @@ export const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate, onOpenL
 
               <button
                 onClick={() => handleProductSelect('accounting')}
-                className="w-full text-left px-3 py-2 rounded-lg flex items-center justify-between text-slate-600 hover:bg-slate-50"
+                className="w-full text-left px-3 py-2 rounded-lg flex items-center justify-between text-slate-700 hover:bg-slate-50 font-medium"
               >
                 <span className="flex items-center gap-2">
-                  <span>🔜</span> Carbon Accounting
+                  <span>📊</span> Carbon Accounting
                 </span>
-                <span className="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded">
-                  Coming Soon
+                <span className="text-[10px] bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded font-medium">
+                  Enterprise
                 </span>
               </button>
 
               <button
                 onClick={() => handleProductSelect('marketplace')}
-                className="w-full text-left px-3 py-2 rounded-lg flex items-center justify-between text-slate-600 hover:bg-slate-50"
+                className="w-full text-left px-3 py-2 rounded-lg flex items-center justify-between text-slate-700 hover:bg-slate-50 font-medium"
               >
                 <span className="flex items-center gap-2">
-                  <span>🔜</span> Carbon Marketplace
+                  <span>🌐</span> Carbon Marketplace
                 </span>
-                <span className="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded">
-                  Coming Soon
+                <span className="text-[10px] bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded font-medium">
+                  Verified
                 </span>
               </button>
 
               <button
                 onClick={() => handleProductSelect('reporting')}
-                className="w-full text-left px-3 py-2 rounded-lg flex items-center justify-between text-slate-600 hover:bg-slate-50"
+                className="w-full text-left px-3 py-2 rounded-lg flex items-center justify-between text-slate-700 hover:bg-slate-50 font-medium"
               >
                 <span className="flex items-center gap-2">
-                  <span>🔜</span> Carbon Reporting
+                  <span>📋</span> Carbon Reporting
                 </span>
-                <span className="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded">
-                  Coming Soon
+                <span className="text-[10px] bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded font-medium">
+                  Auditable
                 </span>
               </button>
             </div>

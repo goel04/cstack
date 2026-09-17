@@ -310,15 +310,15 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             </div>
           </div>
 
-          {/* Card 2: Carbon Accounting (Coming Soon) */}
-          <div className="bg-white rounded-2xl border border-slate-200/80 p-6 flex flex-col justify-between shadow-xs hover:border-slate-300 transition-all opacity-95">
+          {/* Card 2: Carbon Accounting */}
+          <div className="bg-white rounded-2xl border border-slate-200/80 p-6 flex flex-col justify-between shadow-xs hover:border-slate-300 transition-all">
             <div>
               <div className="flex items-center justify-between mb-4">
-                <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-lg">
+                <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center font-bold text-lg border border-amber-100">
                   📊
                 </div>
-                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
-                  Coming Soon
+                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
+                  GHG Protocol
                 </span>
               </div>
               <h3 className="text-lg font-display font-bold text-slate-950">
@@ -332,22 +332,23 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             <div className="mt-8 pt-4 border-t border-slate-100">
               <button
                 onClick={() => onNavigate('accounting')}
-                className="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-sm transition-colors"
+                className="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-900 font-semibold text-sm transition-colors flex items-center justify-center gap-2"
               >
-                View Roadmap
+                <span>Launch Accounting</span>
+                <ArrowRight className="w-4 h-4 text-slate-500" />
               </button>
             </div>
           </div>
 
-          {/* Card 3: Carbon Marketplace (Coming Soon) */}
-          <div className="bg-white rounded-2xl border border-slate-200/80 p-6 flex flex-col justify-between shadow-xs hover:border-slate-300 transition-all opacity-95">
+          {/* Card 3: Carbon Marketplace */}
+          <div className="bg-white rounded-2xl border border-slate-200/80 p-6 flex flex-col justify-between shadow-xs hover:border-slate-300 transition-all">
             <div>
               <div className="flex items-center justify-between mb-4">
-                <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-lg">
+                <div className="w-10 h-10 rounded-xl bg-sky-50 text-sky-700 flex items-center justify-center font-bold text-lg border border-sky-100">
                   🌐
                 </div>
-                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
-                  Coming Soon
+                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
+                  Puro & Verra
                 </span>
               </div>
               <h3 className="text-lg font-display font-bold text-slate-950">
@@ -361,22 +362,23 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             <div className="mt-8 pt-4 border-t border-slate-100">
               <button
                 onClick={() => onNavigate('marketplace')}
-                className="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-sm transition-colors"
+                className="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-900 font-semibold text-sm transition-colors flex items-center justify-center gap-2"
               >
-                Explore Projects
+                <span>Explore Marketplace</span>
+                <ArrowRight className="w-4 h-4 text-slate-500" />
               </button>
             </div>
           </div>
 
-          {/* Card 4: Carbon Reporting (Coming Soon) */}
-          <div className="bg-white rounded-2xl border border-slate-200/80 p-6 flex flex-col justify-between shadow-xs hover:border-slate-300 transition-all opacity-95">
+          {/* Card 4: Carbon Reporting */}
+          <div className="bg-white rounded-2xl border border-slate-200/80 p-6 flex flex-col justify-between shadow-xs hover:border-slate-300 transition-all">
             <div>
               <div className="flex items-center justify-between mb-4">
-                <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-lg">
+                <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center font-bold text-lg border border-teal-100">
                   📋
                 </div>
-                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
-                  Coming Soon
+                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
+                  CSRD & BRSR
                 </span>
               </div>
               <h3 className="text-lg font-display font-bold text-slate-950">
@@ -390,9 +392,10 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             <div className="mt-8 pt-4 border-t border-slate-100">
               <button
                 onClick={() => onNavigate('reporting')}
-                className="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-sm transition-colors"
+                className="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-900 font-semibold text-sm transition-colors flex items-center justify-center gap-2"
               >
-                Learn More
+                <span>Generate Disclosures</span>
+                <ArrowRight className="w-4 h-4 text-slate-500" />
               </button>
             </div>
           </div>
