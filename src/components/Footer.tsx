@@ -1,6 +1,7 @@
 import React from 'react';
 import { ShieldCheck, ArrowUpRight } from 'lucide-react';
 import { ActivePage } from '../types/carbon';
+import { CStackLogo } from './CStackLogo';
 
 interface FooterProps {
   onNavigate: (page: ActivePage) => void;
@@ -13,15 +14,13 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-slate-800/80">
           {/* Col 1: Brand & Positioning */}
           <div className="md:col-span-1 space-y-4">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center text-white font-display font-bold text-lg">
-                C
-              </div>
-              <span className="font-display font-bold text-xl text-white tracking-tight flex items-center gap-1.5">
-                CSTACK
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400" />
-              </span>
-            </div>
+            <button
+              onClick={() => onNavigate('home')}
+              className="text-left group focus:outline-hidden transition-opacity hover:opacity-90 inline-block"
+              aria-label="CSTACK Home"
+            >
+              <CStackLogo size="md" theme="dark" />
+            </button>
             <p className="text-sm text-slate-400 leading-relaxed">
               Precision climate intelligence for individuals and organizations. Measure emissions, model decarbonization pathways, and understand offset requirements.
             </p>

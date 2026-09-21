@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ChevronDown, Menu, X, ArrowRight, Sparkles, Shield, BarChart3, ShoppingBag, FileSpreadsheet } from 'lucide-react';
 import { ActivePage } from '../types/carbon';
+import { CStackLogo } from './CStackLogo';
 
 interface HeaderProps {
   currentPage: ActivePage;
@@ -54,17 +55,10 @@ export const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate, onOpenL
           <button
             id="brand-logo-btn"
             onClick={() => onNavigate('home')}
-            className="flex items-center gap-2.5 text-left group focus:outline-hidden"
+            className="flex items-center text-left group focus:outline-hidden transition-opacity hover:opacity-85"
+            aria-label="CSTACK Home"
           >
-            <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center text-white font-display font-bold text-lg tracking-tight group-hover:bg-emerald-900 transition-colors">
-              C
-            </div>
-            <div className="flex flex-col">
-              <span className="font-display font-bold text-xl tracking-tight text-slate-950 flex items-center gap-1.5">
-                CSTACK
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-700" />
-              </span>
-            </div>
+            <CStackLogo size="md" theme="light" />
           </button>
         </div>
 

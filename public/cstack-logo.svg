@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 110" fill="none">
+  <defs>
+    <mask id="cstack-full-logo-cutout">
+      <rect width="380" height="110" fill="white" />
+      <g transform="translate(15, 6) scale(0.62)">
+        <path
+          d="M53 14 L46 56 M32 40 L46 56 M46 56 L43 96 M43 96 L35 134 M43 96 L48 148 M12 78 L44 76"
+          stroke="black"
+          stroke-width="3.5"
+          stroke-linecap="square"
+          stroke-linejoin="miter"
+        />
+      </g>
+    </mask>
+  </defs>
+
+  <!-- Crystal Mark -->
+  <g transform="translate(15, 6) scale(0.62)">
+    <polygon
+      points="53,14 88,56 76,116 48,148 35,134 12,78 32,40"
+      fill="#1e1e1e"
+      mask="url(#cstack-full-logo-cutout)"
+    />
+  </g>
+
+  <!-- Wordmark 'cstack' -->
+  <text
+    x="95"
+    y="78"
+    font-family="Outfit, 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+    font-size="74"
+    font-weight="700"
+    letter-spacing="-0.02em"
+    fill="#262626"
+  >cstack</text>
+</svg>

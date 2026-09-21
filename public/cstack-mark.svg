@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 156" fill="none">
+  <defs>
+    <mask id="cstack-crystal-cutout">
+      <rect width="100" height="156" fill="white" />
+      <!-- Crease/cut lines in black to make transparent gaps -->
+      <path
+        d="M53 14 L46 56 M32 40 L46 56 M46 56 L43 96 M43 96 L35 134 M43 96 L48 148 M12 78 L44 76"
+        stroke="black"
+        stroke-width="3"
+        stroke-linecap="square"
+        stroke-linejoin="miter"
+      />
+    </mask>
+  </defs>
+  <!-- Solid faceted carbon rock with mask -->
+  <polygon
+    points="53,14 88,56 76,116 48,148 35,134 12,78 32,40"
+    fill="currentColor"
+    mask="url(#cstack-crystal-cutout)"
+  />
+</svg>

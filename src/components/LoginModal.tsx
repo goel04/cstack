@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Lock, Mail, ArrowRight, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { CStackLogo } from './CStackLogo';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -51,8 +52,8 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSucce
         </button>
 
         <div className="text-center mb-6">
-          <div className="w-10 h-10 rounded-xl bg-slate-900 text-white font-display font-bold text-xl flex items-center justify-center mx-auto mb-3 shadow-xs">
-            C
+          <div className="flex justify-center mb-4">
+            <CStackLogo size="lg" theme="light" />
           </div>
           <h3 className="text-xl font-display font-bold text-slate-950">
             Log in to CSTACK
