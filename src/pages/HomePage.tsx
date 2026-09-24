@@ -45,11 +45,11 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 </button>
 
                 <button
-                  id="hero-cta-explore"
-                  onClick={() => onNavigate('calculator')}
+                  id="hero-cta-dashboard"
+                  onClick={() => onNavigate('dashboard')}
                   className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-white text-slate-700 font-semibold text-base border border-slate-200 hover:bg-slate-50 hover:text-slate-950 active:scale-[0.99] transition-all shadow-xs"
                 >
-                  <span>Explore Carbon Calculator</span>
+                  <span>Open Personal Dashboard</span>
                 </button>
               </div>
 

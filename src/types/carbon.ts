@@ -86,4 +86,53 @@ export interface CalculationResult {
   inputsSnapshot: CalculatorState;
 }
 
-export type ActivePage = 'home' | 'calculator' | 'about' | 'marketplace' | 'accounting' | 'reporting';
+export type ActivePage = 'home' | 'calculator' | 'about' | 'marketplace' | 'accounting' | 'reporting' | 'dashboard';
+
+export interface UserProfile {
+  uid: string;
+  email: string;
+  displayName: string;
+  organization?: string;
+  preferredRegion?: RegionCode;
+  targetNetZeroYear?: number;
+  reductionGoalPercent?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SavedCalculationRecord {
+  id: string;
+  title: string;
+  totalKgCO2e: number;
+  totalTonnesCO2e: number;
+  offsetRequirementTonnes: number;
+  breakdown: CategoryBreakdown[];
+  inputsSnapshot: CalculatorState;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface UserActivityRecord {
+  id: string;
+  date: string;
+  scope: 'Scope 1' | 'Scope 2' | 'Scope 3';
+  category: 'electricity' | 'transportation' | 'flights' | 'fuel' | 'waste' | 'other';
+  facility: string;
+  metricValue: number;
+  metricUnit: string;
+  kgCO2e: number;
+  notes?: string;
+  createdAt: string;
+}
+
+export interface UserOffsetRecord {
+  id: string;
+  projectName: string;
+  projectType: string;
+  registry: string;
+  serialNumber: string;
+  tonnes: number;
+  costUsd: number;
+  retiredAt: string;
+  certificateUrl?: string;
+}

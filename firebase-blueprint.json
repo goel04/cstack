@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CSTACK Firestore Schema Blueprint",
+  "version": "1.0.0",
+  "entities": {
+    "UserProfile": {
+      "collection": "users",
+      "path": "users/{userId}",
+      "description": "User profile, organization details, and climate targets",
+      "fields": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "email": { "type": "string", "description": "User email address" },
+        "displayName": { "type": "string", "description": "Display name or lead name" },
+        "organization": { "type": "string", "description": "Organization or company name" },
+        "preferredRegion": { "type": "string", "description": "Default regional grid factor code (e.g. IN, US, EU)" },
+        "targetNetZeroYear": { "type": "number", "description": "Target year for net zero operations" },
+        "createdAt": { "type": "string", "description": "ISO timestamp of creation" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp of last update" }
+      },
+      "rules": {
+        "read": "request.auth != null && request.auth.uid == userId",
+        "write": "request.auth != null && request.auth.uid == userId"
+      }
+    },
+    "SavedCalculation": {
+      "collection": "calculations",
+      "path": "users/{userId}/calculations/{calculationId}",
+      "description": "Saved carbon footprint calculations and snapshots",
+      "fields": {
+        "id": { "type": "string", "description": "Document ID" },
+        "title": { "type": "string", "description": "Name given to the assessment" },
+        "totalKgCO2e": { "type": "number", "description": "Total emissions in kilograms" },
+        "totalTonnesCO2e": { "type": "number", "description": "Total emissions in metric tonnes" },
+        "offsetRequirementTonnes": { "type": "number", "description": "Estimated offset tonnes" },
+        "breakdown": { "type": "array", "description": "Category breakdowns" },
+        "inputsSnapshot": { "type": "object", "description": "Full inputs snapshot" },
+        "createdAt": { "type": "string", "description": "ISO timestamp" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp" }
+      },
+      "rules": {
+        "read": "request.auth != null && request.auth.uid == userId",
+        "write": "request.auth != null && request.auth.uid == userId"
+      }
+    },
+    "ActivityRecord": {
+      "collection": "activities",
+      "path": "users/{userId}/activities/{activityId}",
+      "description": "Granular activity emissions entries logged by user",
+      "fields": {
+        "id": { "type": "string", "description": "Unique activity ID" },
+        "date": { "type": "string", "description": "Date of activity YYYY-MM-DD" },
+        "scope": { "type": "string", "description": "Scope 1, Scope 2, or Scope 3" },
+        "category": { "type": "string", "description": "electricity, fuel, transport, flight, waste, other" },
+        "facility": { "type": "string", "description": "Facility, office, or site name" },
+        "metricValue": { "type": "number", "description": "Quantity measured (kWh, Liters, km, etc.)" },
+        "metricUnit": { "type": "string", "description": "Unit of measurement" },
+        "kgCO2e": { "type": "number", "description": "Calculated emissions in kgCO2e" },
+        "notes": { "type": "string", "description": "Optional notes or invoice references" },
+        "createdAt": { "type": "string", "description": "ISO timestamp" }
+      },
+      "rules": {
+        "read": "request.auth != null && request.auth.uid == userId",
+        "write": "request.auth != null && request.auth.uid == userId"
+      }
+    },
+    "OffsetRetirement": {
+      "collection": "offsets",
+      "path": "users/{userId}/offsets/{offsetId}",
+      "description": "Carbon credit retirements and certificates in portfolio",
+      "fields": {
+        "id": { "type": "string", "description": "Retirement record ID" },
+        "projectName": { "type": "string", "description": "Name of CDR or avoidance project" },
+        "registry": { "type": "string", "description": "Registry (Puro.earth, Verra, Isometric, Gold Standard)" },
+        "serialNumber": { "type": "string", "description": "Public registry certificate serial number" },
+        "tonnes": { "type": "number", "description": "Metric tonnes CO2e retired" },
+        "costUsd": { "type": "number", "description": "Cost in USD" },
+        "retiredAt": { "type": "string", "description": "ISO timestamp of retirement" }
+      },
+      "rules": {
+        "read": "request.auth != null && request.auth.uid == userId",
+        "write": "request.auth != null && request.auth.uid == userId"
+      }
+    }
+  }
+}

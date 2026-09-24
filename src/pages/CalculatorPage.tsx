@@ -42,10 +42,14 @@ import {
 } from '../utils/calculationEngine';
 import { DonutChart, HorizontalBarChart } from '../components/Charts';
 import { ReportModal } from '../components/ReportModal';
+import { useAuth } from '../context/AuthContext';
+import { saveUserCalculation } from '../lib/userDataService';
 
 interface CalculatorPageProps {
   onNavigate: (page: ActivePage) => void;
   onSetModeledTonnes?: (tonnes: number) => void;
+  loadedState?: CalculatorState | null;
+  onOpenLogin?: () => void;
 }
 
 // Sub-component for smooth number count-up animation
@@ -78,7 +82,14 @@ const AnimatedCounter: React.FC<{ target: number; duration?: number }> = ({ targ
   return <span>{current.toFixed(1)}</span>;
 };
 
-export const CalculatorPage: React.FC<CalculatorPageProps> = ({ onNavigate, onSetModeledTonnes }) => {
+export const CalculatorPage: React.FC<CalculatorPageProps> = ({
+  onNavigate,
+  onSetModeledTonnes,
+  loadedState,
+  onOpenLogin,
+}) => {
+  const { user } = useAuth();
+
   // Mode: 'intro' | 'form' | 'results'
   const [viewMode, setViewMode] = useState<'intro' | 'form' | 'results'>('intro');
   const [step, setStep] = useState<number>(1);
@@ -87,6 +98,18 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({ onNavigate, onSe
   // Form State
   const [calcState, setCalcState] = useState<CalculatorState>(INITIAL_CALCULATOR_STATE);
   const [results, setResults] = useState<CalculationResult | null>(null);
+  const [isSavingToDashboard, setIsSavingToDashboard] = useState(false);
+  const [savedSuccessMsg, setSavedSuccessMsg] = useState(false);
+
+  // Populate loadedState if passed from Dashboard
+  useEffect(() => {
+    if (loadedState) {
+      setCalcState(loadedState);
+      const computed = calculateCarbonFootprint(loadedState);
+      setResults(computed);
+      setViewMode('results');
+    }
+  }, [loadedState]);
 
   // Update offset in parent if results change
   useEffect(() => {
@@ -94,6 +117,25 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({ onNavigate, onSe
       onSetModeledTonnes(results.offsetRequirementTonnes);
     }
   }, [results, onSetModeledTonnes]);
+
+  const handleSaveToDashboard = async () => {
+    if (!user) {
+      if (onOpenLogin) onOpenLogin();
+      return;
+    }
+    if (!results) return;
+
+    setIsSavingToDashboard(true);
+    try {
+      await saveUserCalculation(user.uid, results);
+      setSavedSuccessMsg(true);
+      setTimeout(() => setSavedSuccessMsg(false), 3000);
+    } catch (err) {
+      console.error('Failed to save calculation to dashboard:', err);
+    } finally {
+      setIsSavingToDashboard(false);
+    }
+  };
 
   // Step 1 Handlers
   const handleElectricityChange = (kwh: number) => {
@@ -960,6 +1002,19 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({ onNavigate, onSe
 
           <div className="flex items-center gap-2.5 flex-wrap">
             <button
+              onClick={handleSaveToDashboard}
+              disabled={isSavingToDashboard}
+              id="results-save-dashboard-btn"
+              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition-colors flex items-center gap-1.5 shadow-2xs disabled:opacity-60"
+            >
+              {isSavingToDashboard ? (
+                <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Layers className="w-3.5 h-3.5" />
+              )}
+              <span>{savedSuccessMsg ? 'Saved to Dashboard!' : 'Save to Dashboard'}</span>
+            </button>
+            <button
               onClick={() => setIsReportOpen(true)}
               id="results-download-report-btn"
               className="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold text-xs transition-colors flex items-center gap-1.5 shadow-2xs"
@@ -985,6 +1040,21 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({ onNavigate, onSe
             </button>
           </div>
         </div>
+
+        {savedSuccessMsg && (
+          <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 flex items-center justify-between text-xs animate-in slide-in-from-top-2">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>Assessment snapshot successfully stored in your Firestore personal dashboard.</span>
+            </div>
+            <button
+              onClick={() => onNavigate('dashboard')}
+              className="font-bold underline text-emerald-950 hover:text-black"
+            >
+              View Dashboard →
+            </button>
+          </div>
+        )}
 
         {/* 6. MAIN RESULT HERO CARD (Prompt Section 6) */}
         <div className="bg-white rounded-3xl p-8 sm:p-10 border border-slate-200/90 shadow-sm space-y-6">
