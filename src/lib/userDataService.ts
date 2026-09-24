@@ -4,13 +4,22 @@ import {
   UserActivityRecord,
   UserOffsetRecord,
 } from '../types/carbon';
-import { supabase, isSupabaseConfigured } from './supabase';
+import {
+  db,
+  doc,
+  setDoc,
+  deleteDoc,
+  collection,
+  onSnapshot,
+  query,
+  orderBy,
+} from './firebase';
 
 const STORAGE_CALC_KEY = 'cstack_user_calculations';
 const STORAGE_ACT_KEY = 'cstack_user_activities';
 const STORAGE_OFFSET_KEY = 'cstack_user_offsets';
 
-// Local storage helpers
+// Local storage helpers - isolated by userId
 const getLocalData = <T>(key: string): T[] => {
   if (typeof window === 'undefined') return [];
   try {
@@ -31,7 +40,7 @@ const setLocalData = <T>(key: string, data: T[]): void => {
 };
 
 /**
- * Calculations
+ * Calculations - Scoped to users/{userId}/calculations/{calcId}
  */
 export const saveUserCalculation = async (
   userId: string,
@@ -43,7 +52,13 @@ export const saveUserCalculation = async (
 
   const record: SavedCalculationRecord = {
     id: calcId,
-    title: customTitle || `Assessment ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`,
+    title:
+      customTitle ||
+      `Assessment ${new Date().toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      })}`,
     totalKgCO2e: calc.totalKgCO2e,
     totalTonnesCO2e: calc.totalTonnesCO2e,
     offsetRequirementTonnes: calc.offsetRequirementTonnes,
@@ -53,28 +68,16 @@ export const saveUserCalculation = async (
     updatedAt: now,
   };
 
-  // Always save to user local records for instant sync
+  // Always save to user-specific local storage bucket for instant reactive UI
   const current = getLocalData<SavedCalculationRecord>(`${STORAGE_CALC_KEY}_${userId}`);
   setLocalData(`${STORAGE_CALC_KEY}_${userId}`, [record, ...current]);
 
-  // If Supabase table exists and is configured, write to Supabase
-  if (isSupabaseConfigured()) {
-    try {
-      await supabase.from('calculations').upsert({
-        id: calcId,
-        user_id: userId,
-        title: record.title,
-        total_kg_co2e: record.totalKgCO2e,
-        total_tonnes_co2e: record.totalTonnesCO2e,
-        offset_requirement_tonnes: record.offsetRequirementTonnes,
-        breakdown: record.breakdown,
-        inputs_snapshot: record.inputsSnapshot,
-        created_at: now,
-        updated_at: now,
-      });
-    } catch (err) {
-      console.warn('Supabase sync skipped/deferred:', err);
-    }
+  // Persist into user-specific Firestore subcollection
+  try {
+    const calcDocRef = doc(db, 'users', userId, 'calculations', calcId);
+    await setDoc(calcDocRef, record);
+  } catch (err) {
+    console.warn('Firestore calculation write warning:', err);
   }
 
   return calcId;
@@ -85,37 +88,36 @@ export const subscribeUserCalculations = (
   onUpdate: (records: SavedCalculationRecord[]) => void,
   _onError?: (error: any) => void
 ) => {
-  // Initial load from local store
+  // 1. Instantly deliver cached user local records
   const localList = getLocalData<SavedCalculationRecord>(`${STORAGE_CALC_KEY}_${userId}`);
   onUpdate(localList);
 
-  // If Supabase is connected, try to query
-  if (isSupabaseConfigured()) {
-    supabase
-      .from('calculations')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
-      .then(({ data, error }) => {
-        if (!error && data && data.length > 0) {
-          const mapped: SavedCalculationRecord[] = data.map((d: any) => ({
-            id: d.id,
-            title: d.title,
-            totalKgCO2e: Number(d.total_kg_co2e),
-            totalTonnesCO2e: Number(d.total_tonnes_co2e),
-            offsetRequirementTonnes: Number(d.offset_requirement_tonnes),
-            breakdown: d.breakdown,
-            inputsSnapshot: d.inputs_snapshot,
-            createdAt: d.created_at,
-            updatedAt: d.updated_at,
-          }));
-          onUpdate(mapped);
-          setLocalData(`${STORAGE_CALC_KEY}_${userId}`, mapped);
+  // 2. Real-time Firestore listener on user's personal calculations subcollection
+  let unsubFirestore = () => {};
+  try {
+    const colRef = collection(db, 'users', userId, 'calculations');
+    const q = query(colRef, orderBy('createdAt', 'desc'));
+    unsubFirestore = onSnapshot(
+      q,
+      (snapshot) => {
+        if (!snapshot.empty) {
+          const list: SavedCalculationRecord[] = [];
+          snapshot.forEach((docSnap) => {
+            list.push(docSnap.data() as SavedCalculationRecord);
+          });
+          onUpdate(list);
+          setLocalData(`${STORAGE_CALC_KEY}_${userId}`, list);
         }
-      });
+      },
+      (error) => {
+        console.warn('Firestore calculation subscribe error:', error);
+      }
+    );
+  } catch (err) {
+    console.warn('Firestore subscription init notice:', err);
   }
 
-  // Polling / storage listener
+  // Cross-tab storage synchronization
   const handleStorage = (e: StorageEvent) => {
     if (e.key === `${STORAGE_CALC_KEY}_${userId}`) {
       const updated = getLocalData<SavedCalculationRecord>(`${STORAGE_CALC_KEY}_${userId}`);
@@ -126,6 +128,7 @@ export const subscribeUserCalculations = (
   window.addEventListener('storage', handleStorage);
   return () => {
     window.removeEventListener('storage', handleStorage);
+    unsubFirestore();
   };
 };
 
@@ -134,17 +137,16 @@ export const deleteUserCalculation = async (userId: string, calcId: string) => {
   const filtered = current.filter((c) => c.id !== calcId);
   setLocalData(`${STORAGE_CALC_KEY}_${userId}`, filtered);
 
-  if (isSupabaseConfigured()) {
-    try {
-      await supabase.from('calculations').delete().eq('id', calcId).eq('user_id', userId);
-    } catch (err) {
-      console.warn('Could not delete from Supabase:', err);
-    }
+  try {
+    const calcDocRef = doc(db, 'users', userId, 'calculations', calcId);
+    await deleteDoc(calcDocRef);
+  } catch (err) {
+    console.warn('Firestore calculation delete notice:', err);
   }
 };
 
 /**
- * Activity Records
+ * Activity Records - Scoped to users/{userId}/activities/{activityId}
  */
 export const addUserActivity = async (
   userId: string,
@@ -162,24 +164,11 @@ export const addUserActivity = async (
   const current = getLocalData<UserActivityRecord>(`${STORAGE_ACT_KEY}_${userId}`);
   setLocalData(`${STORAGE_ACT_KEY}_${userId}`, [fullRecord, ...current]);
 
-  if (isSupabaseConfigured()) {
-    try {
-      await supabase.from('activities').upsert({
-        id: actId,
-        user_id: userId,
-        scope: fullRecord.scope,
-        category: fullRecord.category,
-        facility: fullRecord.facility,
-        metric_value: fullRecord.metricValue,
-        metric_unit: fullRecord.metricUnit,
-        kg_co2e: fullRecord.kgCO2e,
-        notes: fullRecord.notes,
-        date: fullRecord.date,
-        created_at: now,
-      });
-    } catch (err) {
-      console.warn('Supabase activity sync skipped:', err);
-    }
+  try {
+    const actDocRef = doc(db, 'users', userId, 'activities', actId);
+    await setDoc(actDocRef, fullRecord);
+  } catch (err) {
+    console.warn('Firestore activity write notice:', err);
   }
 
   return actId;
@@ -193,30 +182,28 @@ export const subscribeUserActivities = (
   const localList = getLocalData<UserActivityRecord>(`${STORAGE_ACT_KEY}_${userId}`);
   onUpdate(localList);
 
-  if (isSupabaseConfigured()) {
-    supabase
-      .from('activities')
-      .select('*')
-      .eq('user_id', userId)
-      .order('date', { ascending: false })
-      .then(({ data, error }) => {
-        if (!error && data && data.length > 0) {
-          const mapped: UserActivityRecord[] = data.map((d: any) => ({
-            id: d.id,
-            scope: d.scope,
-            category: d.category,
-            facility: d.facility || 'Main Facility',
-            metricValue: Number(d.metric_value || d.amount || 0),
-            metricUnit: d.metric_unit || d.unit || 'units',
-            kgCO2e: Number(d.kg_co2e || 0),
-            notes: d.notes,
-            date: d.date,
-            createdAt: d.created_at,
-          }));
-          onUpdate(mapped);
-          setLocalData(`${STORAGE_ACT_KEY}_${userId}`, mapped);
+  let unsubFirestore = () => {};
+  try {
+    const colRef = collection(db, 'users', userId, 'activities');
+    const q = query(colRef, orderBy('createdAt', 'desc'));
+    unsubFirestore = onSnapshot(
+      q,
+      (snapshot) => {
+        if (!snapshot.empty) {
+          const list: UserActivityRecord[] = [];
+          snapshot.forEach((docSnap) => {
+            list.push(docSnap.data() as UserActivityRecord);
+          });
+          onUpdate(list);
+          setLocalData(`${STORAGE_ACT_KEY}_${userId}`, list);
         }
-      });
+      },
+      (error) => {
+        console.warn('Firestore activity subscribe notice:', error);
+      }
+    );
+  } catch (err) {
+    console.warn('Firestore activity listener init:', err);
   }
 
   const handleStorage = (e: StorageEvent) => {
@@ -229,6 +216,7 @@ export const subscribeUserActivities = (
   window.addEventListener('storage', handleStorage);
   return () => {
     window.removeEventListener('storage', handleStorage);
+    unsubFirestore();
   };
 };
 
@@ -237,17 +225,16 @@ export const deleteUserActivity = async (userId: string, activityId: string) => 
   const filtered = current.filter((a) => a.id !== activityId);
   setLocalData(`${STORAGE_ACT_KEY}_${userId}`, filtered);
 
-  if (isSupabaseConfigured()) {
-    try {
-      await supabase.from('activities').delete().eq('id', activityId).eq('user_id', userId);
-    } catch (err) {
-      console.warn('Could not delete from Supabase:', err);
-    }
+  try {
+    const actDocRef = doc(db, 'users', userId, 'activities', activityId);
+    await deleteDoc(actDocRef);
+  } catch (err) {
+    console.warn('Firestore activity delete notice:', err);
   }
 };
 
 /**
- * Offset Retirements
+ * Offset Retirements - Scoped to users/{userId}/offsets/{offsetId}
  */
 export const addUserOffsetRetirement = async (
   userId: string,
@@ -265,22 +252,11 @@ export const addUserOffsetRetirement = async (
   const current = getLocalData<UserOffsetRecord>(`${STORAGE_OFFSET_KEY}_${userId}`);
   setLocalData(`${STORAGE_OFFSET_KEY}_${userId}`, [fullRecord, ...current]);
 
-  if (isSupabaseConfigured()) {
-    try {
-      await supabase.from('offsets').upsert({
-        id: offsetId,
-        user_id: userId,
-        project_name: fullRecord.projectName,
-        project_type: fullRecord.projectType,
-        registry: fullRecord.registry,
-        serial_number: fullRecord.serialNumber,
-        tonnes: fullRecord.tonnes,
-        cost_usd: fullRecord.costUsd,
-        retired_at: now,
-      });
-    } catch (err) {
-      console.warn('Supabase offset sync skipped:', err);
-    }
+  try {
+    const offsetDocRef = doc(db, 'users', userId, 'offsets', offsetId);
+    await setDoc(offsetDocRef, fullRecord);
+  } catch (err) {
+    console.warn('Firestore offset write notice:', err);
   }
 
   return offsetId;
@@ -294,28 +270,28 @@ export const subscribeUserOffsets = (
   const localList = getLocalData<UserOffsetRecord>(`${STORAGE_OFFSET_KEY}_${userId}`);
   onUpdate(localList);
 
-  if (isSupabaseConfigured()) {
-    supabase
-      .from('offsets')
-      .select('*')
-      .eq('user_id', userId)
-      .order('retired_at', { ascending: false })
-      .then(({ data, error }) => {
-        if (!error && data && data.length > 0) {
-          const mapped: UserOffsetRecord[] = data.map((d: any) => ({
-            id: d.id,
-            projectName: d.project_name,
-            projectType: d.project_type,
-            registry: d.registry,
-            serialNumber: d.serial_number,
-            tonnes: Number(d.tonnes),
-            costUsd: Number(d.cost_usd),
-            retiredAt: d.retired_at,
-          }));
-          onUpdate(mapped);
-          setLocalData(`${STORAGE_OFFSET_KEY}_${userId}`, mapped);
+  let unsubFirestore = () => {};
+  try {
+    const colRef = collection(db, 'users', userId, 'offsets');
+    const q = query(colRef, orderBy('retiredAt', 'desc'));
+    unsubFirestore = onSnapshot(
+      q,
+      (snapshot) => {
+        if (!snapshot.empty) {
+          const list: UserOffsetRecord[] = [];
+          snapshot.forEach((docSnap) => {
+            list.push(docSnap.data() as UserOffsetRecord);
+          });
+          onUpdate(list);
+          setLocalData(`${STORAGE_OFFSET_KEY}_${userId}`, list);
         }
-      });
+      },
+      (error) => {
+        console.warn('Firestore offset subscribe notice:', error);
+      }
+    );
+  } catch (err) {
+    console.warn('Firestore offset listener init:', err);
   }
 
   const handleStorage = (e: StorageEvent) => {
@@ -328,5 +304,6 @@ export const subscribeUserOffsets = (
   window.addEventListener('storage', handleStorage);
   return () => {
     window.removeEventListener('storage', handleStorage);
+    unsubFirestore();
   };
 };
