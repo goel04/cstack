@@ -43,6 +43,7 @@ export const db = getFirestore(
 );
 
 export {
+  firebaseConfig,
   signInWithPopup,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,

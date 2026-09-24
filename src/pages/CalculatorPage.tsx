@@ -1045,7 +1045,7 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
           <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 flex items-center justify-between text-xs animate-in slide-in-from-top-2">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span>Assessment snapshot successfully stored in your Firestore personal dashboard.</span>
+              <span>Assessment snapshot successfully stored in your personal carbon dashboard.</span>
             </div>
             <button
               onClick={() => onNavigate('dashboard')}

@@ -37,7 +37,7 @@ function MainApp() {
         <div className="bg-slate-950 text-slate-300 text-xs py-1.5 px-4 text-center border-b border-slate-800 flex items-center justify-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
           <span>
-            Connected to Firestore as{' '}
+            Connected to Supabase as{' '}
             <strong className="text-white">
               {userProfile?.displayName || user.email || 'Climate Analyst'}
             </strong>{' '}

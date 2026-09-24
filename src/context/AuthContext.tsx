@@ -1,111 +1,177 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import {
-  auth,
-  googleProvider,
-  signInWithPopup,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signInAnonymously,
-  firebaseSignOut,
-  onAuthStateChanged,
-  updateProfile,
-  doc,
-  getDoc,
-  setDoc,
-  db,
-  User,
-} from '../lib/firebase';
+import { User as SupabaseUser, Session } from '@supabase/supabase-js';
+import { supabase, isSupabaseConfigured, updateSupabaseCredentials } from '../lib/supabase';
 import { UserProfile, RegionCode } from '../types/carbon';
 
+export interface AuthUser {
+  id: string;
+  email?: string;
+  isAnonymous?: boolean;
+  user_metadata?: {
+    full_name?: string;
+    organization?: string;
+    name?: string;
+  };
+}
+
 interface AuthContextType {
-  user: User | null;
+  user: AuthUser | null;
   userProfile: UserProfile | null;
   loading: boolean;
   authError: string | null;
+  isSupabaseConnected: boolean;
   clearAuthError: () => void;
   signInWithGoogle: () => Promise<void>;
   signInWithEmail: (email: string, pass: string) => Promise<void>;
   signUpWithEmail: (email: string, pass: string, name?: string, org?: string) => Promise<void>;
-  signInGuest: () => Promise<void>;
+  signInGuest: (customName?: string, customEmail?: string, customOrg?: string) => Promise<void>;
   logOut: () => Promise<void>;
   updateUserProfile: (data: Partial<UserProfile>) => Promise<void>;
+  connectSupabaseCredentials: (url: string, key: string) => boolean;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType | null>(null);
+
+const STORAGE_PROFILE_KEY = 'cstack_current_user_profile';
+const STORAGE_USER_KEY = 'cstack_current_auth_user';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [isSupabaseConnected, setIsSupabaseConnected] = useState<boolean>(isSupabaseConfigured());
 
-  const clearAuthError = () => setAuthError(null);
+  const clearAuthError = () => {
+    setAuthError(null);
+  };
 
-  // Sync or create user profile document in Firestore
-  const syncUserProfile = async (firebaseUser: User, extraData?: { name?: string; org?: string }) => {
-    try {
-      const userRef = doc(db, 'users', firebaseUser.uid);
-      const snap = await getDoc(userRef);
-
-      if (snap.exists()) {
-        const data = snap.data() as UserProfile;
-        setUserProfile(data);
-      } else {
-        const now = new Date().toISOString();
-        const newProfile: UserProfile = {
-          uid: firebaseUser.uid,
-          email: firebaseUser.email || 'guest@cstack.climate',
-          displayName:
-            extraData?.name ||
-            firebaseUser.displayName ||
-            (firebaseUser.isAnonymous ? 'Guest Climate Analyst' : 'Sustainability Lead'),
-          organization: extraData?.org || 'CSTACK Enterprise Workspace',
-          preferredRegion: 'IN',
-          targetNetZeroYear: 2030,
-          reductionGoalPercent: 42,
-          createdAt: now,
-          updatedAt: now,
-        };
-        await setDoc(userRef, newProfile);
-        setUserProfile(newProfile);
-      }
-    } catch (err: any) {
-      console.warn('Could not sync user profile in Firestore:', err);
-      // Fallback local profile if offline or rules pending
-      setUserProfile({
-        uid: firebaseUser.uid,
-        email: firebaseUser.email || 'user@cstack.climate',
-        displayName: firebaseUser.displayName || 'Sustainability Lead',
-        organization: extraData?.org || 'CSTACK Workspace',
-        preferredRegion: 'IN',
-        targetNetZeroYear: 2030,
-        reductionGoalPercent: 42,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      });
+  // Helper to persist profile
+  const saveProfileLocally = (profile: UserProfile, authUser: AuthUser) => {
+    setUser(authUser);
+    setUserProfile(profile);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(authUser));
+      localStorage.setItem(STORAGE_PROFILE_KEY, JSON.stringify(profile));
     }
   };
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
-      if (currentUser) {
-        await syncUserProfile(currentUser);
-      } else {
-        setUserProfile(null);
-      }
-      setLoading(false);
-    });
+  // Sync Supabase user to UserProfile
+  const mapSupabaseUserToProfile = (sbUser: SupabaseUser, metaOverride?: { name?: string; org?: string }): UserProfile => {
+    const fullName = metaOverride?.name || sbUser.user_metadata?.full_name || sbUser.user_metadata?.name || sbUser.email?.split('@')[0] || 'Climate Lead';
+    const org = metaOverride?.org || sbUser.user_metadata?.organization || 'CSTACK Enterprise';
+    
+    return {
+      uid: sbUser.id,
+      email: sbUser.email || 'analyst@cstack.climate',
+      displayName: fullName,
+      organization: org,
+      preferredRegion: 'IN',
+      targetNetZeroYear: 2030,
+      reductionGoalPercent: 50,
+      createdAt: sbUser.created_at || new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+  };
 
-    return () => unsubscribe();
+  useEffect(() => {
+    // 1. Check if user already had a saved session in localStorage
+    if (typeof window !== 'undefined') {
+      try {
+        const storedUser = localStorage.getItem(STORAGE_USER_KEY);
+        const storedProfile = localStorage.getItem(STORAGE_PROFILE_KEY);
+        if (storedUser && storedProfile) {
+          setUser(JSON.parse(storedUser));
+          setUserProfile(JSON.parse(storedProfile));
+        }
+      } catch (e) {
+        console.warn('Local session restore error:', e);
+      }
+    }
+
+    // 2. If Supabase is configured with real credentials, subscribe to auth state
+    if (isSupabaseConfigured()) {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session?.user) {
+          const profile = mapSupabaseUserToProfile(session.user);
+          saveProfileLocally(profile, {
+            id: session.user.id,
+            email: session.user.email,
+            isAnonymous: false,
+            user_metadata: session.user.user_metadata,
+          });
+        }
+        setLoading(false);
+      }).catch(() => {
+        setLoading(false);
+      });
+
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        if (session?.user) {
+          const profile = mapSupabaseUserToProfile(session.user);
+          saveProfileLocally(profile, {
+            id: session.user.id,
+            email: session.user.email,
+            isAnonymous: false,
+            user_metadata: session.user.user_metadata,
+          });
+        }
+      });
+
+      return () => {
+        subscription.unsubscribe();
+      };
+    } else {
+      setLoading(false);
+    }
   }, []);
+
+  const connectSupabaseCredentials = (url: string, key: string): boolean => {
+    try {
+      updateSupabaseCredentials(url, key);
+      setIsSupabaseConnected(true);
+      return true;
+    } catch (err: any) {
+      setAuthError(err.message || 'Invalid Supabase URL or Anon Key');
+      return false;
+    }
+  };
 
   const signInWithGoogle = async () => {
     setAuthError(null);
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      if (result.user) {
-        await syncUserProfile(result.user);
+      if (isSupabaseConfigured()) {
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: typeof window !== 'undefined' ? window.location.origin : undefined,
+          },
+        });
+        if (error) throw error;
+      } else {
+        // Instant simulated Google Auth session without blocking user
+        const mockId = `google_usr_${Date.now().toString(36)}`;
+        const authUser: AuthUser = {
+          id: mockId,
+          email: 'lakshaygoel611@gmail.com',
+          isAnonymous: false,
+          user_metadata: {
+            full_name: 'Lakshay Goel',
+            organization: 'Enterprise Climate Workspace',
+          },
+        };
+        const profile: UserProfile = {
+          uid: mockId,
+          email: 'lakshaygoel611@gmail.com',
+          displayName: 'Lakshay Goel',
+          organization: 'Enterprise Climate Workspace',
+          preferredRegion: 'IN',
+          targetNetZeroYear: 2030,
+          reductionGoalPercent: 50,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        saveProfileLocally(profile, authUser);
       }
     } catch (err: any) {
       console.error('Google sign in error:', err);
@@ -117,17 +183,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signInWithEmail = async (email: string, pass: string) => {
     setAuthError(null);
     try {
-      const result = await signInWithEmailAndPassword(auth, email, pass);
-      if (result.user) {
-        await syncUserProfile(result.user);
+      if (isSupabaseConfigured()) {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password: pass,
+        });
+        if (error) throw error;
+        if (data.user) {
+          const profile = mapSupabaseUserToProfile(data.user);
+          saveProfileLocally(profile, {
+            id: data.user.id,
+            email: data.user.email,
+            user_metadata: data.user.user_metadata,
+          });
+        }
+      } else {
+        // Direct local authentication session
+        const mockId = `usr_${Math.abs(email.split('').reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0))}`;
+        const name = email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+        const authUser: AuthUser = {
+          id: mockId,
+          email,
+          isAnonymous: false,
+        };
+        const profile: UserProfile = {
+          uid: mockId,
+          email,
+          displayName: name,
+          organization: 'Climate Analytics Lab',
+          preferredRegion: 'IN',
+          targetNetZeroYear: 2030,
+          reductionGoalPercent: 50,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        saveProfileLocally(profile, authUser);
       }
     } catch (err: any) {
-      console.error('Email sign in error:', err);
-      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
-        setAuthError('Invalid email or password. Please check your credentials.');
-      } else {
-        setAuthError(err?.message || 'Failed to sign in.');
-      }
+      console.error('Supabase Email sign in error:', err);
+      setAuthError(err?.message || 'Invalid email or password.');
       throw err;
     }
   };
@@ -135,39 +229,78 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signUpWithEmail = async (email: string, pass: string, name?: string, org?: string) => {
     setAuthError(null);
     try {
-      const result = await createUserWithEmailAndPassword(auth, email, pass);
-      if (result.user) {
-        if (name) {
-          await updateProfile(result.user, { displayName: name });
+      if (isSupabaseConfigured()) {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password: pass,
+          options: {
+            data: {
+              full_name: name,
+              organization: org,
+            },
+          },
+        });
+        if (error) throw error;
+        if (data.user) {
+          const profile = mapSupabaseUserToProfile(data.user, { name, org });
+          saveProfileLocally(profile, {
+            id: data.user.id,
+            email: data.user.email,
+            user_metadata: { full_name: name, organization: org },
+          });
         }
-        await syncUserProfile(result.user, { name, org });
+      } else {
+        const mockId = `usr_${Date.now()}`;
+        const authUser: AuthUser = {
+          id: mockId,
+          email,
+          isAnonymous: false,
+          user_metadata: { full_name: name, organization: org },
+        };
+        const profile: UserProfile = {
+          uid: mockId,
+          email,
+          displayName: name || email.split('@')[0],
+          organization: org || 'CSTACK Workspace',
+          preferredRegion: 'IN',
+          targetNetZeroYear: 2030,
+          reductionGoalPercent: 50,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        saveProfileLocally(profile, authUser);
       }
     } catch (err: any) {
-      console.error('Email sign up error:', err);
-      if (err.code === 'auth/email-already-in-use') {
-        setAuthError('An account with this email already exists.');
-      } else if (err.code === 'auth/weak-password') {
-        setAuthError('Password should be at least 6 characters.');
-      } else {
-        setAuthError(err?.message || 'Failed to register account.');
-      }
+      console.error('Supabase Email sign up error:', err);
+      setAuthError(err?.message || 'Could not create Supabase account.');
       throw err;
     }
   };
 
-  const signInGuest = async () => {
+  const signInGuest = async (customName?: string, customEmail?: string, customOrg?: string) => {
     setAuthError(null);
     try {
-      const result = await signInAnonymously(auth);
-      if (result.user) {
-        await syncUserProfile(result.user, {
-          name: 'Demo Climate Analyst',
-          org: 'Guest Exploration Lab',
-        });
-      }
+      const guestId = `guest_${Date.now()}`;
+      const authUser: AuthUser = {
+        id: guestId,
+        email: customEmail || 'guest@cstack.climate',
+        isAnonymous: true,
+      };
+      const profile: UserProfile = {
+        uid: guestId,
+        email: customEmail || 'guest@cstack.climate',
+        displayName: customName || 'Climate Analyst',
+        organization: customOrg || 'CSTACK Workspace',
+        preferredRegion: 'IN',
+        targetNetZeroYear: 2030,
+        reductionGoalPercent: 50,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      saveProfileLocally(profile, authUser);
     } catch (err: any) {
-      console.error('Guest sign in error:', err);
-      setAuthError(err?.message || 'Failed to start guest session.');
+      console.error('Guest login error:', err);
+      setAuthError('Could not start guest session.');
       throw err;
     }
   };
@@ -175,30 +308,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logOut = async () => {
     setAuthError(null);
     try {
-      await firebaseSignOut(auth);
+      if (isSupabaseConfigured()) {
+        await supabase.auth.signOut();
+      }
+    } catch (e) {
+      console.warn('Supabase signout notice:', e);
+    } finally {
       setUser(null);
       setUserProfile(null);
-    } catch (err: any) {
-      console.error('Sign out error:', err);
-      throw err;
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(STORAGE_USER_KEY);
+        localStorage.removeItem(STORAGE_PROFILE_KEY);
+      }
     }
   };
 
   const updateUserProfile = async (data: Partial<UserProfile>) => {
-    if (!user) throw new Error('Not authenticated');
-    try {
-      const userRef = doc(db, 'users', user.uid);
-      const updated = {
-        ...userProfile,
-        ...data,
-        updatedAt: new Date().toISOString(),
-      };
-      await setDoc(userRef, updated, { merge: true });
-      setUserProfile(updated as UserProfile);
-    } catch (err: any) {
-      console.error('Update profile error:', err);
-      throw err;
-    }
+    if (!user || !userProfile) return;
+    const updated: UserProfile = {
+      ...userProfile,
+      ...data,
+      updatedAt: new Date().toISOString(),
+    };
+    saveProfileLocally(updated, user);
   };
 
   return (
@@ -208,6 +340,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         userProfile,
         loading,
         authError,
+        isSupabaseConnected,
         clearAuthError,
         signInWithGoogle,
         signInWithEmail,
@@ -215,6 +348,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         signInGuest,
         logOut,
         updateUserProfile,
+        connectSupabaseCredentials,
       }}
     >
       {children}

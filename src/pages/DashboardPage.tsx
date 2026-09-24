@@ -554,7 +554,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                 Saved Carbon Footprint Assessments
               </h2>
               <p className="text-xs text-slate-500">
-                Snapshots captured from the CSTACK calculation engine, stored in Firestore.
+                Snapshots captured from the CSTACK calculation engine, stored in Supabase.
               </p>
             </div>
             <button
@@ -1032,7 +1032,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                 <h3 className="text-base font-display font-bold text-slate-950">
                   Log Granular Activity Emission
                 </h3>
-                <p className="text-xs text-slate-500">Record an operational emission event into Firestore.</p>
+                <p className="text-xs text-slate-500">Record an operational emission event into your ledger.</p>
               </div>
               <button
                 onClick={() => setIsActivityModalOpen(false)}

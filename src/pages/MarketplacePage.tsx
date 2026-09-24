@@ -487,7 +487,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({ onNavigate, su
             </div>
 
             <div className="text-[11px] text-slate-500 leading-relaxed p-3 rounded-xl bg-slate-100/70 border border-slate-200/60">
-              This certificate affirms that the specified carbon credits have been permanently retired from circulation and cannot be resold or reallocated, fulfilling ESG disclosure requirements. Stored to your Firestore account.
+              This certificate affirms that the specified carbon credits have been permanently retired from circulation and cannot be resold or reallocated, fulfilling ESG disclosure requirements. Stored to your Supabase account.
             </div>
 
             <div className="flex items-center justify-end gap-2.5 pt-2">
